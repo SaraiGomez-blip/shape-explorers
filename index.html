@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shape Explorers 🌟</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #4FC3F7;
+    --sun: #FFD600;
+    --grass: #66BB6A;
+    --coral: #FF7043;
+    --purple: #7C4DFF;
+    --pink: #F06292;
+    --mint: #26C6DA;
+    --bg: #E3F2FD;
+    --card: #fff;
+    --shadow: 0 8px 32px rgba(80,120,200,0.13);
+    --radius: 22px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #7C4DFF 0%, #4FC3F7 100%);
+    color: #fff;
+    text-align: center;
+    padding: 28px 20px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -40px; left: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; right: -30px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+  }
+  header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    letter-spacing: 1px;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.12);
+  }
+  header p {
+    font-size: 1.05rem;
+    opacity: 0.92;
+    margin-top: 6px;
+    font-weight: 600;
+  }
+  .stars-bar { font-size: 1.4rem; margin-top: 4px; letter-spacing: 4px; }
+
+  /* ── SCORE BAR ── */
+  .score-bar {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 14px 20px;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .score-pill {
+    background: linear-gradient(135deg, #7C4DFF, #4FC3F7);
+    color: #fff;
+    border-radius: 50px;
+    padding: 7px 20px;
+    font-weight: 800;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .score-pill span { font-size: 1.3rem; }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px 16px 60px;
+  }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.7rem;
+    color: var(--purple);
+    text-align: center;
+    margin: 32px 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .section-title .badge-level {
+    background: var(--purple);
+    color: #fff;
+    font-size: 0.85rem;
+    padding: 3px 12px;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+  }
+
+  /* ── INTRO CARD ── */
+  .intro-card {
+    background: linear-gradient(135deg, #7C4DFF 0%, #4FC3F7 100%);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 28px 28px 24px;
+    text-align: center;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow);
+  }
+  .intro-card h2 { font-family: 'Fredoka One', cursive; font-size: 1.6rem; margin-bottom: 8px; }
+  .intro-card p { font-size: 1.05rem; opacity: 0.95; line-height: 1.6; }
+  .start-btn {
+    display: inline-block;
+    margin-top: 18px;
+    background: var(--sun);
+    color: #333;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    padding: 12px 36px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #c8a800;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #c8a800; }
+  .start-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #c8a800; }
+
+  /* ── GAME AREA ── */
+  #game-area { display: none; }
+
+  /* ── CARD GRID ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+    margin-bottom: 12px;
+  }
+
+  .word-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 22px 16px 18px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: transform 0.18s, box-shadow 0.18s;
+    cursor: default;
+    border: 3px solid transparent;
+    animation: popIn 0.4s cubic-bezier(.36,1.5,.6,1) both;
+  }
+  .word-card:hover { transform: translateY(-4px); box-shadow: 0 14px 40px rgba(80,120,200,0.18); }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.7) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .word-card .emoji { font-size: 3.2rem; margin-bottom: 10px; display: block; }
+  .word-card .word  { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: #333; margin-bottom: 6px; }
+  .word-card .color-swatch {
+    display: block; width: 50px; height: 50px;
+    border-radius: 50%; margin: 0 auto 8px;
+    border: 3px solid rgba(0,0,0,0.08);
+  }
+  .word-card .shape-svg { width: 60px; height: 60px; margin: 0 auto 8px; display: block; }
+
+  /* ── QUIZ SECTION ── */
+  .quiz-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .quiz-card h3 { font-family: 'Fredoka One', cursive; font-size: 1.4rem; color: #333; margin-bottom: 18px; }
+  .quiz-question { font-size: 1.15rem; font-weight: 700; color: #444; margin-bottom: 20px; line-height: 1.5; }
+  .quiz-visual { font-size: 4rem; margin-bottom: 14px; display: block; }
+  .color-display {
+    width: 80px; height: 80px; border-radius: 50%;
+    margin: 0 auto 14px;
+    border: 4px solid rgba(0,0,0,0.08);
+  }
+  .shape-display { width: 90px; height: 90px; margin: 0 auto 14px; display: block; }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .opt-btn {
+    background: #F3F0FF;
+    border: 3px solid #D1C4E9;
+    border-radius: 14px;
+    padding: 14px 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .opt-btn:hover { background: var(--purple); color: #fff; border-color: var(--purple); transform: scale(1.04); }
+  .opt-btn.correct { background: #66BB6A; color: #fff; border-color: #388E3C; }
+  .opt-btn.wrong   { background: #EF5350; color: #fff; border-color: #C62828; }
+  .opt-btn:disabled { cursor: default; }
+
+  .feedback-msg {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-top: 16px;
+    min-height: 36px;
+    transition: opacity 0.3s;
+  }
+  .feedback-msg.correct { color: #388E3C; }
+  .feedback-msg.wrong   { color: #C62828; }
+
+  .next-btn {
+    margin-top: 18px;
+    background: linear-gradient(135deg, #7C4DFF, #4FC3F7);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.15rem;
+    padding: 12px 36px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    display: none;
+    box-shadow: 0 4px 0 rgba(124,77,255,0.4);
+    transition: transform 0.1s;
+  }
+  .next-btn:hover { transform: translateY(-2px); }
+
+  /* ── LEVEL BADGE ── */
+  .level-badge {
+    display: inline-block;
+    background: var(--sun);
+    color: #333;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    padding: 8px 22px;
+    border-radius: 50px;
+    margin-bottom: 16px;
+    box-shadow: 0 3px 0 #c8a800;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    background: #E0E0E0;
+    border-radius: 50px;
+    height: 14px;
+    margin: 0 0 22px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 50px;
+    background: linear-gradient(90deg, #7C4DFF, #4FC3F7);
+    transition: width 0.5s ease;
+  }
+
+  /* ── RESULTS ── */
+  #results {
+    display: none;
+    text-align: center;
+    padding: 36px 20px;
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  #results h2 { font-family: 'Fredoka One', cursive; font-size: 2.2rem; color: var(--purple); margin-bottom: 8px; }
+  #results .trophy { font-size: 5rem; margin-bottom: 12px; display: block; animation: bounce 0.7s infinite alternate; }
+  @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12px); } }
+  #results p { font-size: 1.15rem; color: #555; margin-bottom: 6px; font-weight: 600; }
+  #results .badges-row { display: flex; justify-content: center; gap: 14px; font-size: 2.2rem; margin: 16px 0 24px; }
+  .replay-btn {
+    background: linear-gradient(135deg, #66BB6A, #26C6DA);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    padding: 13px 38px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(102,187,106,0.4);
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .tab-btn {
+    background: #fff;
+    border: 3px solid #D1C4E9;
+    border-radius: 50px;
+    padding: 9px 22px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: var(--purple);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tab-btn.active, .tab-btn:hover {
+    background: var(--purple);
+    color: #fff;
+    border-color: var(--purple);
+  }
+
+  /* ── SPELLING GAME ── */
+  .spell-word { font-size: 2rem; font-family: 'Fredoka One', cursive; color: #333; margin-bottom: 18px; letter-spacing: 4px; }
+  .spell-input {
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    text-align: center;
+    border: 3px solid #D1C4E9;
+    border-radius: 14px;
+    padding: 10px 20px;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .spell-input:focus { border-color: var(--purple); }
+  .check-btn {
+    display: block;
+    margin: 14px auto 0;
+    background: var(--purple);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    padding: 11px 30px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* ── HINT ── */
+  .hint { font-size: 0.95rem; color: #888; margin-top: 10px; font-weight: 600; }
+  .hint span { color: var(--purple); cursor: pointer; text-decoration: underline; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 18px;
+    font-size: 0.85rem;
+    color: #999;
+    font-weight: 600;
+  }
+
+  /* confetti dots */
+  .confetti { pointer-events: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: none; }
+  .dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; animation: fall 1.2s ease-in forwards; }
+  @keyframes fall {
+    from { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    to   { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="confetti" id="confetti"></div>
+
+<header>
+  <h1>🌟 Shape Explorers</h1>
+  <p>Learn colors, numbers & shapes in English!</p>
+  <div class="stars-bar">⭐⭐⭐</div>
+</header>
+
+<div class="score-bar">
+  <div class="score-pill"><span>⭐</span> Points: <strong id="score-display">0</strong></div>
+  <div class="score-pill"><span>🏅</span> Badges: <strong id="badge-display">0</strong></div>
+  <div class="score-pill"><span>📚</span> Level: <strong id="level-display">1</strong></div>
+</div>
+
+<main>
+  <!-- INTRO -->
+  <div class="intro-card" id="intro">
+    <h2>Welcome, Explorer! 🗺️</h2>
+    <p>In this game you will learn <strong>colors</strong>, <strong>numbers</strong>, and <strong>shapes</strong> in English.<br>
+    Complete all 3 levels to collect your badges! 🏅🏅🏅</p>
+    <button class="start-btn" onclick="startGame()">▶ Start Playing!</button>
+  </div>
+
+  <!-- GAME AREA -->
+  <div id="game-area">
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('learn')" id="tab-learn">📖 Learn</button>
+      <button class="tab-btn" onclick="showTab('quiz')"  id="tab-quiz">🎮 Quiz</button>
+      <button class="tab-btn" onclick="showTab('spell')" id="tab-spell">✏️ Spell It!</button>
+    </div>
+
+    <!-- ── LEARN TAB ── -->
+    <div id="tab-learn-content">
+      <div class="section-title">
+        🎨 Colors <span class="badge-level">Level 1</span>
+      </div>
+      <div class="cards-grid" id="colors-grid"></div>
+
+      <div class="section-title">
+        🔢 Numbers <span class="badge-level">Level 2</span>
+      </div>
+      <div class="cards-grid" id="numbers-grid"></div>
+
+      <div class="section-title">
+        🔷 Shapes <span class="badge-level">Level 3</span>
+      </div>
+      <div class="cards-grid" id="shapes-grid"></div>
+    </div>
+
+    <!-- ── QUIZ TAB ── -->
+    <div id="tab-quiz-content" style="display:none;">
+      <div class="quiz-card">
+        <div class="level-badge" id="quiz-level-badge">🎨 Colors Quiz</div>
+        <div class="progress-wrap">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <h3 id="quiz-q-num">Question 1 of 6</h3>
+        <div id="quiz-visual-area"></div>
+        <p class="quiz-question" id="quiz-question">What color is this?</p>
+        <div class="options-grid" id="options-grid"></div>
+        <div class="feedback-msg" id="feedback-msg"></div>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next ➡</button>
+      </div>
+      <div id="results">
+        <span class="trophy">🏆</span>
+        <h2 id="results-title">Amazing!</h2>
+        <p id="results-msg">You got 6 out of 6 correct!</p>
+        <p id="results-badge-msg">🏅 You earned a new badge!</p>
+        <div class="badges-row" id="results-badges"></div>
+        <button class="replay-btn" onclick="restartQuiz()">🔄 Play Again</button>
+      </div>
+    </div>
+
+    <!-- ── SPELL IT TAB ── -->
+    <div id="tab-spell-content" style="display:none;">
+      <div class="quiz-card">
+        <div class="level-badge" id="spell-level-badge">✏️ Spell It!</div>
+        <div class="progress-wrap">
+          <div class="progress-fill" id="spell-progress-fill" style="width:0%"></div>
+        </div>
+        <h3 id="spell-q-num">Word 1 of 8</h3>
+        <div id="spell-visual-area"></div>
+        <p class="quiz-question">Type the word you see:</p>
+        <p class="spell-word" id="spell-blanks">_ _ _ _</p>
+        <input class="spell-input" id="spell-input" type="text" maxlength="12" placeholder="Type here..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" onclick="checkSpelling()">✔ Check</button>
+        <div class="feedback-msg" id="spell-feedback"></div>
+        <p class="hint">Need a hint? <span onclick="giveHint()">Show first letter</span></p>
+        <button class="next-btn" id="spell-next-btn" onclick="nextSpellWord()">Next ➡</button>
+      </div>
+    </div>
+
+  </div><!-- /game-area -->
+</main>
+
+<footer>Shape Explorers · Teaching English to Children, Adolescents and Adults 518004 · UNAD 2025</footer>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────
+const COLORS = [
+  { word: 'red',    emoji: '🔴', hex: '#E53935' },
+  { word: 'blue',   emoji: '🔵', hex: '#1E88E5' },
+  { word: 'green',  emoji: '🟢', hex: '#43A047' },
+  { word: 'yellow', emoji: '🟡', hex: '#FDD835' },
+  { word: 'orange', emoji: '🟠', hex: '#FB8C00' },
+  { word: 'purple', emoji: '🟣', hex: '#8E24AA' },
+];
+
+const NUMBERS = [
+  { word: 'one',   emoji: '1️⃣', num: 1 },
+  { word: 'two',   emoji: '2️⃣', num: 2 },
+  { word: 'three', emoji: '3️⃣', num: 3 },
+  { word: 'four',  emoji: '4️⃣', num: 4 },
+  { word: 'five',  emoji: '5️⃣', num: 5 },
+  { word: 'six',   emoji: '6️⃣', num: 6 },
+  { word: 'seven', emoji: '7️⃣', num: 7 },
+  { word: 'eight', emoji: '8️⃣', num: 8 },
+  { word: 'nine',  emoji: '9️⃣', num: 9 },
+  { word: 'ten',   emoji: '🔟', num: 10 },
+];
+
+const SHAPES = [
+  { word: 'circle',    svg: '<circle cx="45" cy="45" r="38"/>' },
+  { word: 'square',    svg: '<rect x="7" y="7" width="76" height="76" rx="6"/>' },
+  { word: 'triangle',  svg: '<polygon points="45,5 88,85 2,85"/>' },
+  { word: 'rectangle', svg: '<rect x="4" y="22" width="82" height="46" rx="6"/>' },
+  { word: 'star',      svg: '<polygon points="45,5 56,36 90,36 63,57 73,90 45,70 17,90 27,57 0,36 34,36"/>' },
+];
+
+const SHAPE_COLORS = ['#7C4DFF','#FF7043','#26C6DA','#FFD600','#66BB6A'];
+
+let score = 0, badges = 0, level = 1;
+let quizQuestions = [], quizIndex = 0, quizCorrect = 0;
+let spellWords = [], spellIndex = 0, spellHintUsed = false;
+
+// ── HELPERS ──────────────────────────────────────────────────────────
+function updateScoreBar() {
+  document.getElementById('score-display').textContent = score;
+  document.getElementById('badge-display').textContent = badges;
+  document.getElementById('level-display').textContent = level;
+}
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function shapeSVG(shape, color, size = 90) {
+  return `<svg class="shape-display" viewBox="0 0 90 90" width="${size}" height="${size}" fill="${color}" xmlns="http://www.w3.org/2000/svg">${shape.svg}</svg>`;
+}
+
+// ── START ─────────────────────────────────────────────────────────────
+function startGame() {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('game-area').style.display = 'block';
+  buildLearnCards();
+  buildQuiz();
+  buildSpell();
+}
+
+// ── LEARN CARDS ───────────────────────────────────────────────────────
+function buildLearnCards() {
+  const cg = document.getElementById('colors-grid');
+  COLORS.forEach((c, i) => {
+    cg.innerHTML += `
+      <div class="word-card" style="animation-delay:${i*0.07}s; border-color:${c.hex}44;">
+        <div class="color-swatch" style="background:${c.hex}"></div>
+        <div class="word">${c.word}</div>
+      </div>`;
+  });
+
+  const ng = document.getElementById('numbers-grid');
+  NUMBERS.forEach((n, i) => {
+    ng.innerHTML += `
+      <div class="word-card" style="animation-delay:${i*0.06}s;">
+        <span class="emoji">${n.emoji}</span>
+        <div class="word">${n.word}</div>
+      </div>`;
+  });
+
+  const sg = document.getElementById('shapes-grid');
+  SHAPES.forEach((s, i) => {
+    const col = SHAPE_COLORS[i % SHAPE_COLORS.length];
+    sg.innerHTML += `
+      <div class="word-card" style="animation-delay:${i*0.08}s; border-color:${col}44;">
+        ${shapeSVG(s, col, 70)}
+        <div class="word">${s.word}</div>
+      </div>`;
+  });
+}
+
+// ── QUIZ ─────────────────────────────────────────────────────────────
+function buildQuiz() {
+  const colorQs = COLORS.map(c => ({
+    type: 'color',
+    answer: c.word,
+    visual: `<div class="color-display" style="background:${c.hex}"></div>`,
+    question: 'What color is this?',
+    options: shuffle([c.word, ...shuffle(COLORS.filter(x=>x.word!==c.word)).slice(0,3).map(x=>x.word)])
+  }));
+  const shapeQs = SHAPES.map((s, i) => ({
+    type: 'shape',
+    answer: s.word,
+    visual: shapeSVG(s, SHAPE_COLORS[i % SHAPE_COLORS.length]),
+    question: 'What shape is this?',
+    options: shuffle([s.word, ...shuffle(SHAPES.filter(x=>x.word!==s.word)).slice(0,3).map(x=>x.word)])
+  }));
+  const numQs = NUMBERS.slice(0,6).map(n => ({
+    type: 'number',
+    answer: n.word,
+    visual: `<span class="quiz-visual">${n.emoji}</span>`,
+    question: 'What number is this?',
+    options: shuffle([n.word, ...shuffle(NUMBERS.filter(x=>x.word!==n.word)).slice(0,3).map(x=>x.word)])
+  }));
+
+  quizQuestions = shuffle([...colorQs, ...shapeQs, ...numQs]).slice(0, 12);
+  quizIndex = 0; quizCorrect = 0;
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  const q = quizQuestions[quizIndex];
+  const total = quizQuestions.length;
+  document.getElementById('quiz-q-num').textContent = `Question ${quizIndex+1} of ${total}`;
+  document.getElementById('progress-fill').style.width = `${(quizIndex/total)*100}%`;
+  document.getElementById('quiz-level-badge').textContent =
+    q.type === 'color' ? '🎨 Colors Quiz' : q.type === 'shape' ? '🔷 Shapes Quiz' : '🔢 Numbers Quiz';
+  document.getElementById('quiz-visual-area').innerHTML = q.visual;
+  document.getElementById('quiz-question').textContent = q.question;
+  document.getElementById('feedback-msg').textContent = '';
+  document.getElementById('feedback-msg').className = 'feedback-msg';
+  document.getElementById('next-btn').style.display = 'none';
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt;
+    btn.onclick = () => handleQuizAnswer(opt, q.answer);
+    grid.appendChild(btn);
+  });
+}
+
+function handleQuizAnswer(chosen, correct) {
+  const btns = document.querySelectorAll('.opt-btn');
+  btns.forEach(b => {
+    b.disabled = true;
+    if (b.textContent === correct) b.classList.add('correct');
+    if (b.textContent === chosen && chosen !== correct) b.classList.add('wrong');
+  });
+  const fb = document.getElementById('feedback-msg');
+  if (chosen === correct) {
+    fb.textContent = '✅ Great job! +10 points!';
+    fb.className = 'feedback-msg correct';
+    score += 10; quizCorrect++;
+    updateScoreBar();
+    launchConfetti();
+  } else {
+    fb.textContent = `❌ Try again! The answer is "${correct}".`;
+    fb.className = 'feedback-msg wrong';
+  }
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+function nextQuestion() {
+  quizIndex++;
+  if (quizIndex < quizQuestions.length) {
+    renderQuizQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  document.querySelector('.quiz-card').style.display = 'none';
+  const r = document.getElementById('results');
+  r.style.display = 'block';
+  const total = quizQuestions.length;
+  const pct = Math.round((quizCorrect / total) * 100);
+
+  let title, msg;
+  if (pct >= 90) { title = '🌟 Superstar Explorer!'; badges++; }
+  else if (pct >= 70) { title = '🎉 Great Explorer!'; badges++; }
+  else { title = '💪 Keep Exploring!'; }
+
+  msg = `You got ${quizCorrect} out of ${total} correct! (${pct}%)`;
+  if (level < 3) level++;
+
+  document.getElementById('results-title').textContent = title;
+  document.getElementById('results-msg').textContent = msg;
+  document.getElementById('results-badge-msg').textContent = badges > 0 ? `🏅 You earned ${badges} badge(s)! Keep going!` : 'Practice more to earn badges!';
+  document.getElementById('results-badges').textContent = '🏅'.repeat(badges) || '🔒';
+  updateScoreBar();
+  launchConfetti();
+}
+
+function restartQuiz() {
+  document.querySelector('.quiz-card').style.display = 'block';
+  document.getElementById('results').style.display = 'none';
+  buildQuiz();
+}
+
+// ── SPELL IT ─────────────────────────────────────────────────────────
+function buildSpell() {
+  spellWords = shuffle([
+    ...COLORS.map(c => ({ word: c.word, visual: `<div class="color-display" style="background:${c.hex}"></div>` })),
+    ...SHAPES.map((s, i) => ({ word: s.word, visual: shapeSVG(s, SHAPE_COLORS[i % SHAPE_COLORS.length]) })),
+    ...NUMBERS.slice(0,4).map(n => ({ word: n.word, visual: `<span class="quiz-visual">${n.emoji}</span>` })),
+  ]).slice(0, 10);
+  spellIndex = 0;
+  renderSpellWord();
+}
+
+function renderSpellWord() {
+  spellHintUsed = false;
+  const w = spellWords[spellIndex];
+  document.getElementById('spell-q-num').textContent = `Word ${spellIndex+1} of ${spellWords.length}`;
+  document.getElementById('spell-progress-fill').style.width = `${(spellIndex/spellWords.length)*100}%`;
+  document.getElementById('spell-visual-area').innerHTML = w.visual;
+  document.getElementById('spell-blanks').textContent = '_ '.repeat(w.word.length).trim();
+  document.getElementById('spell-input').value = '';
+  document.getElementById('spell-input').focus();
+  document.getElementById('spell-feedback').textContent = '';
+  document.getElementById('spell-feedback').className = 'feedback-msg';
+  document.getElementById('spell-next-btn').style.display = 'none';
+  document.getElementById('spell-input').disabled = false;
+}
+
+function checkSpelling() {
+  const w = spellWords[spellIndex];
+  const typed = document.getElementById('spell-input').value.trim().toLowerCase();
+  const fb = document.getElementById('spell-feedback');
+  if (typed === w.word) {
+    fb.textContent = '✅ Perfect spelling! +15 points!';
+    fb.className = 'feedback-msg correct';
+    score += spellHintUsed ? 8 : 15;
+    updateScoreBar();
+    launchConfetti();
+    document.getElementById('spell-input').disabled = true;
+    document.getElementById('spell-next-btn').style.display = 'inline-block';
+    document.getElementById('spell-blanks').textContent = w.word.toUpperCase();
+  } else {
+    fb.textContent = `❌ Not quite! Try again. The word has ${w.word.length} letters.`;
+    fb.className = 'feedback-msg wrong';
+    document.getElementById('spell-input').value = '';
+    document.getElementById('spell-input').focus();
+  }
+}
+
+function giveHint() {
+  const w = spellWords[spellIndex];
+  spellHintUsed = true;
+  document.getElementById('spell-input').value = w.word[0];
+  document.getElementById('spell-input').focus();
+}
+
+function nextSpellWord() {
+  spellIndex++;
+  if (spellIndex < spellWords.length) {
+    renderSpellWord();
+  } else {
+    document.getElementById('spell-feedback').textContent = '🎉 You finished all words! Great job!';
+    document.getElementById('spell-feedback').className = 'feedback-msg correct';
+    document.getElementById('spell-next-btn').style.display = 'none';
+    badges++;
+    updateScoreBar();
+    launchConfetti();
+  }
+}
+
+document.getElementById('spell-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkSpelling();
+});
+
+// ── TABS ─────────────────────────────────────────────────────────────
+function showTab(name) {
+  ['learn','quiz','spell'].forEach(t => {
+    document.getElementById(`tab-${t}-content`).style.display = t === name ? 'block' : 'none';
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === name);
+  });
+}
+
+// ── CONFETTI ─────────────────────────────────────────────────────────
+function launchConfetti() {
+  const c = document.getElementById('confetti');
+  c.style.display = 'block';
+  c.innerHTML = '';
+  const colors = ['#7C4DFF','#FFD600','#4FC3F7','#FF7043','#66BB6A','#F06292'];
+  for (let i = 0; i < 40; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    dot.style.left = Math.random() * 100 + 'vw';
+    dot.style.top = '-10px';
+    dot.style.background = colors[Math.floor(Math.random()*colors.length)];
+    dot.style.animationDelay = Math.random() * 0.8 + 's';
+    dot.style.width = dot.style.height = (8 + Math.random()*8) + 'px';
+    c.appendChild(dot);
+  }
+  setTimeout(() => { c.style.display = 'none'; }, 2200);
+}
+</script>
+</body>
+</html>
